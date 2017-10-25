@@ -77,14 +77,16 @@ mv $fq_file 0_rawfastq
 #bismark
 mkdir 4_bismark_alignment
 cd 4_bismark_alignment
-bismark --bowtie1 --sam -n 2 -l 20 ../../$genome_path ../2_trimgalore/${fq_file%%.fastq*}_trimmed.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
+#bismark --bowtie1 --sam -n 2 -l 20 ../../$genome_path ../2_trimgalore/${fq_file%%.fastq*}_trimmed.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
+bismark --bowtie2 --sam -N 0 -L 20 ../../$genome_path ../2_trimgalore/${fq_file%%.fastq*}_trimmed.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 
 #sam to bam
 samtools view -b -S -h ${fq_file%%.fastq*}_trimmed*.sam > ${fq_file%%.fastq*}_trimmed.fq_bismark.bam
 samtools sort ${fq_file%%.fastq*}_trimmed.fq_bismark.bam ${fq_file%%.fastq*}_trimmed.fq_bismark.sorted 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 samtools index ${fq_file%%.fastq*}_trimmed.fq_bismark.sorted.bam 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 #sam sort for MethylKit
-grep -v '^[[:space:]]*@' ${fq_file%%.fastq*}_trimmed*.sam | sort -k3,3 -k4,4n > ${fq_file%%.fastq*}_trimmed.fq_bismark.sorted.sam
+#grep -v '^[[:space:]]*@' ${fq_file%%.fastq*}_trimmed*.sam | sort -k3,3 -k4,4n > ${fq_file%%.fastq*}_trimmed.fq_bismark.sorted.sam
+
 #methylation extraction
 bismark_methylation_extractor --comprehensive --report --buffer_size 8G -s ${fq_file%%.fastq*}_trimmed*.sam 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 
@@ -101,11 +103,11 @@ mv 4_bismark_alignment/*.bed* 5_output_files
 
 #100bp window creation
 
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CpG* 100 0 ${fileID}_CpG 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CpG* 100 0 ${fileID}_CpG 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CpG*.wig 5_output_files/${fileID}_CpG_100bp.wig
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHG* 100 0 ${fileID}_CHG 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHG* 100 0 ${fileID}_CHG 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CHG*.wig 5_output_files/${fileID}_CHG_100bp.wig
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHH* 100 0 ${fileID}_CHH 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHH* 100 0 ${fileID}_CHH 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CHH*.wig 5_output_files/${fileID}_CHH_100bp.wig
 
 echo "#####################"
@@ -220,14 +222,15 @@ mv $fq_file 0_rawfastq
 #bismark
 mkdir 4_bismark_alignment
 cd 4_bismark_alignment
-bismark --bowtie1 --sam -n 2 -l 20 ../../$genome_path ../2_trimgalore/${fq_file%%.fastq*}_trimmed.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
+#bismark --bowtie1 --sam -n 2 -l 20 ../../$genome_path ../2_trimgalore/${fq_file%%.fastq*}_trimmed.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
+bismark --bowtie2 --sam -N 0 -L 20 ../../$genome_path ../2_trimgalore/${fq_file%%.fastq*}_trimmed.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 
 #sam to bam
 samtools view -b -S -h ${fq_file%%.fastq*}_trimmed*.sam > ${fq_file%%.fastq*}_trimmed.fq_bismark.bam
 samtools sort ${fq_file%%.fastq*}_trimmed.fq_bismark.bam ${fq_file%%.fastq*}_trimmed.fq_bismark.sorted 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 samtools index ${fq_file%%.fastq*}_trimmed.fq_bismark.sorted.bam 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 #sam sort for MethylKit
-grep -v '^[[:space:]]*@' ${fq_file%%.fastq*}_trimmed*.sam | sort -k3,3 -k4,4n > ${fq_file%%.fastq*}_trimmed.fq_bismark.sorted.sam
+#grep -v '^[[:space:]]*@' ${fq_file%%.fastq*}_trimmed*.sam | sort -k3,3 -k4,4n > ${fq_file%%.fastq*}_trimmed.fq_bismark.sorted.sam
 #methylation extraction
 bismark_methylation_extractor --comprehensive --report --buffer_size 8G -s ${fq_file%%.fastq*}_trimmed*.sam 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 
@@ -241,11 +244,11 @@ mv 4_bismark_alignment/*.bed* 5_output_files
 
 #100bp window creation
 
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CpG* 100 0 ${fileID}_CpG 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CpG* 100 0 ${fileID}_CpG 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CpG*.wig 5_output_files/${fileID}_CpG_100bp.wig
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHG* 100 0 ${fileID}_CHG 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHG* 100 0 ${fileID}_CHG 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CHG*.wig 5_output_files/${fileID}_CHG_100bp.wig
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHH* 100 0 ${fileID}_CHH 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHH* 100 0 ${fileID}_CHH 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CHH*.wig 5_output_files/${fileID}_CHH_100bp.wig
 
 echo "#####################"
@@ -362,13 +365,15 @@ mv $fq_file2 0_rawfastq
 #bismark
 mkdir 4_bismark_alignment
 cd 4_bismark_alignment
-bismark --bowtie1 --sam -n 2 -l 20 ../../$genome_path -1 ../2_trimgalore/${fq_file1%%.fastq*}_val_1.fq* -2 ../2_trimgalore/${fq_file2%%.fastq*}_val_2.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
+#bismark --bowtie1 --sam -n 2 -l 20 ../../$genome_path -1 ../2_trimgalore/${fq_file1%%.fastq*}_val_1.fq* -2 ../2_trimgalore/${fq_file2%%.fastq*}_val_2.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
+bismark	--bowtie2 --sam -N 0 -L 20 ../../$genome_path -1 ../2_trimgalore/${fq_file1%%.fastq*}_val_1.fq* -2 ../2_trimgalore/${fq_file2%%.fastq*}_val_2.fq* 2>&1 | tee -a ../${fileID}_logs_${dow}.log
+
 #sam to bam
 samtools view -b -S -h ${fq_file1%%.fastq*}_val_1.fq*_bismark_pe.sam > ${fq_file1%%.fastq*}_val_1.fq_bismark_pe.bam
 samtools sort ${fq_file1%%.fastq*}_val_1.fq_bismark_pe.bam ${fq_file1%%.fastq*}_val_1.fq_bismark_pe.sorted 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 samtools index ${fq_file1%%.fastq*}_val_1.fq_bismark_pe.sorted.bam 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 #sam sort for MethylKit
-grep -v '^[[:space:]]*@' ${fq_file1%%.fastq*}_val_1.fq_bismark_pe.sam | sort -k3,3 -k4,4n > ${fq_file1%%.fastq*}_val_1.fq_bismark_pe.sorted.sam
+#grep -v '^[[:space:]]*@' ${fq_file1%%.fastq*}_val_1.fq_bismark_pe.sam | sort -k3,3 -k4,4n > ${fq_file1%%.fastq*}_val_1.fq_bismark_pe.sorted.sam
 #methylation extraction PAIRED END (-p)
 bismark_methylation_extractor --comprehensive --report --buffer_size 8G -p ${fq_file1%%.fastq*}_val_1.fq*_bismark_pe.sam 2>&1 | tee -a ../${fileID}_logs_${dow}.log
 
@@ -382,11 +387,11 @@ mv 4_bismark_alignment/*.bed* 5_output_files
 
 #100bp window creation
 
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CpG* 100 0 ${fileID}_CpG 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CpG* 100 0 ${fileID}_CpG 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CpG*.wig 5_output_files/${fileID}_CpG_100bp.wig
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHG* 100 0 ${fileID}_CHG 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHG* 100 0 ${fileID}_CHG 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CHG*.wig 5_output_files/${fileID}_CHG_100bp.wig
-perl $HOME/scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHH* 100 0 ${fileID}_CHH 2>&1 | tee -a ${fileID}_logs_${dow}.log
+perl $HOME/NGS-scripts/C_context_window_SREedits.pl 4_bismark_alignment/CHH* 100 0 ${fileID}_CHH 2>&1 | tee -a ${fileID}_logs_${dow}.log
 mv 4_bismark_alignment/CHH*.wig 5_output_files/${fileID}_CHH_100bp.wig
 
 echo "#####################"

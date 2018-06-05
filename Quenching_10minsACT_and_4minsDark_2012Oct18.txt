@@ -1,0 +1,349 @@
+TS=40ms
+; Quenching protocol with Actinic1 & Actinic2 10mins + dark 4 mins
+; Protocol: Quenching-without-FR1-Lucam.p modified by Keng 
+;version October 18, 2012
+;high-resolution CCD
+;
+include default.inc  ;Includes standard options, do not remove it !
+include light.inc  ;Includes standard options, do not remove it !
+Shutter=0
+Sensitivity=50
+Act1=100
+Act2=100
+Super=100
+
+;-------------------------------------------------------------------------------------------------------------
+;*** Fo Measurement ******************************************************************************************
+;-------------------------------------------------------------------------------------------------------------
+F0duration = 5s
+F0period = 1s
+<0,F0period..F0duration>=>mfmsub
+;
+;Fo definition
+<0s>=>checkPoint,"startFo"
+<F0duration - F0period>=>checkPoint,"endFo"
+;
+;-------------------------------------------------------------------------------------------------------------
+;*** Saturating Pulse & Fm Measurement ***********************************************************************
+;-------------------------------------------------------------------------------------------------------------
+PulseDuration=800ms;#####
+a1=F0duration + 2*mfmsub_length;#####
+;
+<a1>=>SatPulse(PulseDuration)
+<a1>=>act1(PulseDuration)
+<a1>=>act2(PulseDuration)
+;
+<a1>=>mpulse
+;
+;Fm definition
+<a1 + mfmsub_length>=>checkPoint,"startFm"
+<a1 + PulseDuration - mfmsub_length>=>checkPoint,"endFm"
+;
+;Visual frame definition                                               ## Image shown in pre-processing window
+<a1 + PulseDuration/2 + TS>=>checkPoint,"timeVisual"
+;
+;-------------------------------------------------------------------------------------------------------------
+;******* Dark Relaxation Measurement *************************************************************************
+;-------------------------------------------------------------------------------------------------------------
+DarkRelaxation1=17s;#####
+b1= a1 + PulseDuration + 2*mfmsub_length;#####
+b2=2s;#####
+<b1, b1 + 200ms .. b1 + b2>=>mfmsub
+<b1 + b2 + 200ms, b1 + 2*b2 .. b1+DarkRelaxation1>=>mfmsub
+;
+;-------------------------------------------------------------------------------------------------------------
+;******* Kautsky Effect Measurement **************************************************************************
+;-------------------------------------------------------------------------------------------------------------
+;
+;******* Actinic light Exposure **************************************
+ALPeriod=600s;#####
+c1= a1 + PulseDuration + DarkRelaxation1 + mfmsub_length;#####
+<c1>=>act1(ALPeriod)
+<c1>=>act2(ALPeriod)
+;
+;*******Fast Kautsky kinetics****************************************
+c2=3s;#####
+;
+<c1 + TS, c1 + TS + mfmsub_length.. c1+c2>=>mfmsub;
+;
+;*******Slow Kautsky kinetics****************************************
+c3=4s;#####                                                                           period of slow measurement
+;
+<c1 + c2 + c3/10, c1 + c2+ c3/5, c1 + c2 + c3/2>=>mfmsub
+;
+<c1 + c2 + c3, c1 + c2 + c3 +12s .. c1 + ALPeriod>=>mfmsub;
+;
+;Fp definition
+<c1>=>checkPoint,"startFp"
+<c1 + c2 + c3>=>checkPoint,"endFp"
+;
+;-------------------------------------------------------------------------------------------------------------
+;******* Saturating Pulses - Fm' Quenching Analysis **********************************************************
+;-------------------------------------------------------------------------------------------------------------
+;
+;******* Saturating Pulses - Fm_L1 ***********************************
+f1=c1+<18s>;#####
+f11=f1#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f11=>mfmsub
+f1 + mfmsub_length=>checkPoint,"startFt_L1"
+f1 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L1"
+;
+f2=f1 + PulseDuration;#####
+f2=>SatPulse(PulseDuration);
+f2=>mpulse
+f2+PulseDuration/2=>checkPoint,"startFm_L1"
+f2 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L1"
+;
+;******* Saturating Pulses - Fm_L2 **********************************
+f3=c1+<38s>;#####
+f31=f3#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f31=>mfmsub
+f3 + mfmsub_length=>checkPoint,"startFt_L2"
+f3 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L2"
+;
+f4=f3 + PulseDuration;#####
+f4=>SatPulse(PulseDuration);
+f4=>mpulse
+f4 + PulseDuration/2=>checkPoint,"startFm_L2"
+f4 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L2"
+;
+;******* Saturating Pulses - Fm_L3 ***********************************
+f5=c1+<58s>;#####
+f51=f5#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f51=>mfmsub
+f5 + mfmsub_length=>checkPoint,"startFt_L3"
+f5 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L3"
+;
+f6=f5 + PulseDuration;#####
+f6=>SatPulse(PulseDuration);
+f6=>mpulse
+f6 + PulseDuration/2=>checkPoint,"startFm_L3"
+f6 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L3"
+;
+;******* Saturating Pulses - Fm_L4 ***********************************
+f7=c1+<78s>;#####
+f71=f7#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f71=>mfmsub
+f7 + mfmsub_length=>checkPoint,"startFt_L4"
+f7 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L4"
+;
+f8=f7 + PulseDuration;#####
+f8=>SatPulse(PulseDuration);
+f8=>mpulse
+f8 + PulseDuration/2=>checkPoint,"startFm_L4"
+f8 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L4"
+;
+;******* Saturating Pulses - Fm_L5 ***********************************
+f9=c1+<98s>;#####
+f91=f9#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f91=>mfmsub
+f9 + mfmsub_length=>checkPoint,"startFt_L5"
+f9 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L5"
+;
+f10=f9 + PulseDuration;#####
+f10=>SatPulse(PulseDuration);
+f10=>mpulse
+f10 + PulseDuration/2=>checkPoint,"startFm_L5"
+f10 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L5"
+;
+;******* Saturating Pulses - Fm_L6 ***********************************
+f11=c1+<118s>;#####
+f111=f11#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f111=>mfmsub
+f11 + mfmsub_length=>checkPoint,"startFt_L6"
+f11 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L6"
+;
+f12=f11 + PulseDuration;#####
+f12=>SatPulse(PulseDuration);
+f12=>mpulse
+f12 + PulseDuration/2=>checkPoint,"startFm_L6"
+f12 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L6"
+;
+;******* Saturating Pulses - Fm_L7 ***********************************
+f13=c1+<148s>;#####
+f131=f13#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f131=>mfmsub
+f13 + mfmsub_length=>checkPoint,"startFt_L7"
+f13 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L7"
+;
+f14=f13 + PulseDuration;#####
+f14=>SatPulse(PulseDuration);
+f14=>mpulse
+f14 + PulseDuration/2=>checkPoint,"startFm_L7"
+f14 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L7"
+;
+;******* Saturating Pulses - Fm_L8 ***********************************
+f15=c1+<178s>;#####
+f151=f15#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f151=>mfmsub
+f15 + mfmsub_length=>checkPoint,"startFt_L8"
+f15 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L8"
+;
+f16=f15 + PulseDuration;#####
+f16=>SatPulse(PulseDuration);
+f16=>mpulse
+f16 + PulseDuration/2=>checkPoint,"startFm_L8"
+f16 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L8"
+;
+;******* Saturating Pulses - Fm_L9 ***********************************
+f17=c1+<238s>;#####
+f171=f17#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f171=>mfmsub
+f17 + mfmsub_length=>checkPoint,"startFt_L9"
+f17 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L9"
+;
+f18=f17 + PulseDuration;#####
+f18=>SatPulse(PulseDuration);
+f18=>mpulse
+f18 + PulseDuration/2=>checkPoint,"startFm_L9"
+f18 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L9"
+;
+;******* Saturating Pulses - Fm_L10 ***********************************
+f19=c1+<298s>;#####
+f191=f19#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f191=>mfmsub
+f19 + mfmsub_length=>checkPoint,"startFt_L10"
+f19 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L10"
+;
+f20=f19 + PulseDuration;#####
+f20=>SatPulse(PulseDuration);
+f20=>mpulse
+f20 + PulseDuration/2=>checkPoint,"startFm_L10"
+f20 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L10"
+;
+;******* Saturating Pulses - Fm_L11 ***********************************
+f21=c1+<358s>;#####
+f211=f21#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f211=>mfmsub
+f21 + mfmsub_length=>checkPoint,"startFt_L11"
+f21 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L11"
+;
+f22=f21 + PulseDuration;#####
+f22=>SatPulse(PulseDuration);
+f22=>mpulse
+f22 + PulseDuration/2=>checkPoint,"startFm_L11"
+f22 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L11"
+;
+;******* Saturating Pulses - Fm_L12 ***********************************
+f23=c1+<418s>;#####
+f231=f23#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f231=>mfmsub
+f23 + mfmsub_length=>checkPoint,"startFt_L12"
+f23 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L12"
+;
+f24=f23 + PulseDuration;#####
+f24=>SatPulse(PulseDuration);
+f24=>mpulse
+f24 + PulseDuration/2=>checkPoint,"startFm_L12"
+f24 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L12"
+;
+;******* Saturating Pulses - Fm_L13 ***********************************
+f25=c1+<478s>;#####
+f251=f25#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f251=>mfmsub
+f25 + mfmsub_length=>checkPoint,"startFt_L13"
+f25 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L13"
+;
+f26=f25 + PulseDuration;#####
+f26=>SatPulse(PulseDuration);
+f26=>mpulse
+f26 + PulseDuration/2=>checkPoint,"startFm_L13"
+f26 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L13"
+;
+;******* Saturating Pulses - Fm_L14 ***********************************
+f27=c1+<538s>;#####
+f271=f27#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f271=>mfmsub
+f27 + mfmsub_length=>checkPoint,"startFt_L14"
+f27 + PulseDuration - mfmsub_length=>checkPoint,"endFt_L14"
+;
+f28=f27 + PulseDuration;#####
+f28=>SatPulse(PulseDuration);
+f28=>mpulse
+f28 + PulseDuration/2=>checkPoint,"startFm_L14"
+f28 + PulseDuration - mfmsub_length=>checkPoint,"endFm_L14"
+;
+;******* Saturating Pulses - Fm_L15 ***********************************
+f29=c1+<598s>;#####
+f291=f29#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+f291=>mfmsub
+f29 + mfmsub_length=>checkPoint,"startFt_Lss"
+f29 + PulseDuration - mfmsub_length=>checkPoint,"endFt_Lss"
+;
+f30=f29 + PulseDuration;#####
+f30=>SatPulse(PulseDuration);
+f30=>mpulse
+f30 + PulseDuration/2=>checkPoint,"startFm_Lss"
+f30 + PulseDuration - mfmsub_length=>checkPoint,"endFm_Lss"
+;
+;-------------------------------------------------------------------------------------------------------------
+;*** Dark relaxation after actinic light period **************************************************************
+;-------------------------------------------------------------------------------------------------------------
+DarkRelaxation2=240s;#####
+h=c1 + ALPeriod +mfmsub_length;#####
+;
+;******** Relaxation measurement**************************************
+;
+<h, h+DarkRelaxation2/10..h+DarkRelaxation2>=>mfmsub
+;
+;******* Saturating Pulses - Fm_D1 ***********************************
+g1=h + <28s>;#####
+g11=g1#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+g11=>mfmsub
+g1 + mfmsub_length=>checkPoint,"startFt_D1"
+g1 + PulseDuration - mfmsub_length=>checkPoint,"endFt_D1"
+;
+g2=g1 + PulseDuration;#####
+g2=>SatPulse(PulseDuration)
+g2=>act1(PulseDuration)
+g2=>act2(PulseDuration)
+g2=>mpulse
+g2 + PulseDuration/2=>checkPoint,"startFm_D1"
+g2 + PulseDuration - mfmsub_length=>checkPoint,"endFm_D1"
+;
+;******* Saturating Pulses - Fm_D2 ***********************************
+g3=h + <58s>;#####
+g31=g3#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+g31=>mfmsub
+g3 + mfmsub_length=>checkPoint,"startFt_D2"
+g3 + PulseDuration - mfmsub_length=>checkPoint, "endFt_D2"
+;
+g4=g3 + PulseDuration;#####
+g4=>SatPulse(PulseDuration)
+g4=>act1(PulseDuration)
+g4=>act2(PulseDuration)
+g4=>mpulse
+g4 + PulseDuration/2=>checkPoint,"startFm_D2"
+g4 + PulseDuration - mfmsub_length=>checkPoint,"endFm_D2"
+;
+;******* Saturating Pulses - Fm_D3 ***********************************
+g5=h+<118s>;#####
+g51=g5#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+g51=>mfmsub
+g5 + mfmsub_length=>checkPoint,"startFt_D3"
+g5 + PulseDuration - mfmsub_length=>checkPoint,"endFt_D3"
+;
+g6=g5 + PulseDuration;#####
+g6=>SatPulse(PulseDuration)
+g6=>act1(PulseDuration)
+g6=>act2(PulseDuration)
+g6=>mpulse
+g6 + PulseDuration/2=>checkPoint,"startFm_D3"
+g6 + PulseDuration - mfmsub_length=>checkPoint,"endFm_D3"
+;
+;******* Saturating Pulses - Fm_D4 ***********************************
+g7=h+<238s>;#####
+g71=g5#<mfmsub_length,2*mfmsub_length ..PulseDuration - mfmsub_length>;#####
+g71=>mfmsub
+g7 + mfmsub_length=>checkPoint,"startFt_D4"
+g7 + PulseDuration - mfmsub_length=>checkPoint,"endFt_D4"
+;
+g8=g7 + PulseDuration;#####
+g8=>SatPulse(PulseDuration)
+g8=>act1(PulseDuration)
+g8=>act2(PulseDuration)
+g8=>mpulse
+g8 + PulseDuration/2=>checkPoint,"startFm_D4"
+g8 + PulseDuration - mfmsub_length=>checkPoint,"endFm_D4"
+;
+;END ******************************************************************
